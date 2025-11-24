@@ -14,67 +14,73 @@ struct Livro {
     char autor[100];
     int anopublicado;
     int id;
-    int quantidadedisponivel; // max 10;
-    struct Pessoa v_emprestimos[10]; // vetor para pessoas que emprestaram - max 10
-    int cont_emprestimos; // contador de pessoas que realizaram empréstimos
+    int quantidade; // max 10;
+    struct Pessoa v_pessoa[10]; // vetor para pessoas que emprestaram - max 10
+    int num; // contador de pessoas que realizaram empréstimos
 };
 
 // Estrutura que contém todos os dados da biblioteca
 struct Biblioteca {
-    struct Livro v_livros[100];
-    int cont_livros_cadastrados;
+    struct Livro v_livros[100]; // vetor de uma estrutura do tipo livro
+    int livros; // contador para quantidade de livros cadastrados
 };
 
 // Função para cadastrar livro
 void cad(struct Biblioteca *b) {
-    if (b->cont_livros_cadastrados >= 100)
+    if (b->livros > 100)
     {
         printf("O limite de livros cadastrados foi atingido.\n");
         return;
     }
 
-    struct Livro novo;
+    struct Livro livro; // criando um tipo para cadastrar um livro
 
     // Inserir dados do livro
-    printf("\tTítulo: ");
-    scanf(" %[^\n]", novo.titulo);
+    printf("\n\t\tTítulo: ");
+    scanf(" %[^\n]", livro.titulo);
 
-    printf("\tAutor: ");
-    scanf(" %[^\n]", novo.autor);
+    printf("\n\t\tAutor: ");
+    scanf(" %[^\n]", livro.autor);
 
-    printf("\tAno de publicação: ");
-    scanf("%d", &novo.anopublicado);
+    printf("\n\t\tAno de publicação: ");
+    scanf("%d", &livro.anopublicado);
 
-    printf("\tID do livro: ");
-    scanf("%d", &novo.id);
+    printf("\n\t\tID do livro: ");
+    scanf("%d", &livro.id);
 
     // Verificar se o ID já existe
-    for (int i = 0; i < b->cont_livros_cadastrados; i++)
+    for (int i = 0; i < b->livros; i++)
     {
-        if (b->v_livros[i].id == novo.id)
+        if (b->v_livros[i].id == livro.id)
         {
-            printf("\tERRO! ID já existente para outro livro!\n");
-            return;
+            printf("\t\tERRO! ID já existente para outro livro!\n");
+                
+            printf("\n\t\tInsira um ID não cadastrado: ");
+            scanf("%d", &livro.id);
+            i = -1;
         }
     }
     
-    printf("\tQuantidade de exemplares: ");
-    scanf("%d", &novo.quantidadedisponivel); // max é 10
+    printf("\n\t\tQuantidade de exemplares: ");
+    scanf("%d", &livro.quantidade); // maximo = 10
     
-    if (novo.quantidadedisponivel > 10)
+    if (livro.quantidade > 10 || livro.quantidade < 0)
     {
-        printf("\tERRO! quantidade de exemplares não pode ser maior que 10.\n");
-        return;   
+        printf("\n\t\tERRO! A quantidade deve estar entre 0 e 10.\n");
+        while(livro.quantidade > 10 || livro.quantidade < 0){
+            printf("\n\t\tInsira uma quantidade de válida: ");
+            scanf("%d", &livro.quantidade);
+        }   
     }
-    
+
     // Inicializando o contador de empréstimos
-    novo.cont_emprestimos = 0;
+    livro.num = 0;
 
     // Adicionando o livro à biblioteca
-    b->v_livros[b->cont_livros_cadastrados] = novo;
-    b->cont_livros_cadastrados++;
+    b->v_livros[b->livros] = livro;
+    b->livros++;
 
-    printf("\tLivro cadastrado com sucesso!\n");
+    printf("\n\t\tLivro cadastrado com sucesso!\n");
 }
 
 // Função para consulta de livros
@@ -82,40 +88,143 @@ void consultar(struct Biblioteca *b){
     int escolha;
     struct Livro livro;
     
-    printf("\tSelecione 1 se deseja vizualizar todos os livros ou 2 para buscar um livro pelo seu ID: ");
+    printf("\n\t\t1. VIZUALIZAR TODOS OS LIVROS CADASTRADOS\n\t\t2. BUSCAR LIVRO PELO ID\n\t\tOpção: ");
     scanf("%d", &escolha);
+
     if (escolha == 1){
-        printf("\n\t--- LISTA DE LIVROS ---\n");
-        for(int i = 0; i < b->cont_livros_cadastrados; i++){
-            printf("\tLivro %d: %s | Autor: %s | Ano de publicação: %d | ID do livro: %d\n", i+1, b->v_livros[i].titulo, b->v_livros[i].autor, b->v_livros[i].id);
-            printf("===========================================================");
+        if (b->livros == 0) {
+            printf("\n\t\t\tNão há livros cadastrados na biblioteca.\n");
+            return;
         }
+
+        printf("\n\t\t--- LISTA DE LIVROS ---\n");
+
+        for(int i = 0; i < b->livros; i++)
+        {
+            printf("\t\tLIVRO: %s | AUTOR: %s | ANO de publicação: %d | ID: %d\n", b->v_livros[i].titulo, b->v_livros[i].autor, b->v_livros[i].anopublicado, b->v_livros[i].id);
+        }
+
     }
     else if (escolha == 2){
         int idlivro;
-        int encontrado = 0;
 
-        printf("\tDigite o ID do livro: ");
+        printf("\t\tDIGITE O ID: ");
         scanf("%d", &idlivro);
-
-        for (int i = 0; i < b->cont_livros_cadastrados; i++){
-            if (b->v_livros[i].id == idlivro)
-            {
-                printf("\tLivro %d: Título: %s, Autor: %s, Ano de publicação: %d, ID do livro: %d", i+1, livro.titulo, livro.autor, livro.anopublicado, livro.id);
-                return;
-            }
-            else{
-                printf("\tCódigo não localizado na biblioteca.");
+        
+        for (int i = 0; i < b->livros; i++) {
+            
+            if(b->v_livros[i].id == idlivro){
+                
+                printf("\t\tLIVRO: %s | AUTOR: %s | ANO de publicação: %d | ID: %d\n", b->v_livros[i].titulo, b->v_livros[i].autor, b->v_livros[i].anopublicado, b->v_livros[i].id);
                 return;
             }
         }
-        
+        printf("\n\t\tID não localizado.\n");
+    }
+    else{
+        printf("\n\t\tOpção inválida!");
     }
 }
+
+// Função para registro de empréstimo
+void emprestimo(struct Biblioteca *b)
+{
+    int idlivro;
+    struct Pessoa p;
+
+    printf("\t\tDIGITE O ID: ");
+    scanf("%d", &idlivro);
+
+    // Loop para procurar o livro no vetor de livros
+    for (int i = 0; i < b->livros; i++)
+    {
+        // Verifica se encontrou o livro pelo ID
+        if (b->v_livros[i].id == idlivro)
+        {
+            // 1. Verifica disponibilidade do exemplares
+            if(b->v_livros[i].quantidade > 0)
+            {
+                printf("\t\tDIGITE O NOME DE QUEM VAI EMPRESTAR: ");
+                scanf(" %[^\n]", p.nome);
+                printf("\t\tDIGITE O CPF: ");
+                scanf(" %ld", p.cpf);
+
+                for(int j = 0; j < b->v_livros[i].num; j++){
+                    if(b->v_livros[i].v_pessoa[j].cpf == p.cpf){
+                        printf("\nERRO: Esta pessoa ja possui um exemplar deste livro emprestado!\n");
+                        return;
+                    }
+                }
+                // 2. Registra o empréstimo
+                int indice = b->v_livros[i].num;
+                
+                // Copia os dados da pessoa para dentro do vetor do livro
+                b->v_livros[i].v_pessoa[indice] = p;
+                
+                // Atualiza contadores
+                b->v_livros[i].num++; 
+
+                // Diminui a qntd disponível dos exemplares do livro
+                b->v_livros[i].quantidade--;   
+
+                // Encerra a função pois já resolveu
+                printf("\n\t\tEmpréstimo realizado com sucesso!\n");
+                return; 
+            }
+            else {
+                printf("\nSem exemplares disponíveis.\n");
+                return;
+            }
+        }
+    }
+    // Se o loop terminar e não tiver entrado, significa que não achou o ID
+    printf("\n\t\tID não localizado.\n");
+}
+
+// Função para devolução de livros 
+void devolucao(struct Biblioteca *b){
+    int idlivro;
+    long cpf;
+
+    printf("\t\tDIGITE O ID DO LIVRO QUE SERÁ DEVOLVIDO: ");
+    scanf("%d", &idlivro);
+
+    // Loop para procurar o livro no vetor de livros
+    for (int i = 0; i < b->livros; i++)
+    {
+        // Verifica se encontrou o livro pelo ID
+        if (b->v_livros[i].id == idlivro){
+
+            printf("\t\tDIGITE O CPF DE QUEM IRÁ DEVOLVER: ");
+            scanf("%ld", &cpf);
+
+            for (int j = 0; j < b->v_livros[i].num; j++){
+
+                if(b->v_livros[i].v_pessoa[j].cpf == cpf){
+
+                    for(int k = j; k < b->v_livros[i].num - 1; k++){
+                        b->v_livros[i].v_pessoa[k] =b->v_livros[i].v_pessoa[k + 1];
+                    }
+                    // aumenta a qntd disponível dos exemplares do livro
+                    b->v_livros[i].quantidade++;
+
+                    // Atualiza o numero de pessoas que fizeram emprestimo
+                    b->v_livros[i].num--;
+                    printf("\n\t\tDevolução realizada!");
+                    return;
+                }
+            }
+            printf("\n\t\tERRO: CPF não localizado.\n");
+            return;
+        }     
+    }
+    printf("\n\t\tERRO: ID não localizado.\n");
+}
+//Funçao para remoção 
 int main()
 {
     struct Biblioteca biblioteca; // declaração da struct
-    biblioteca.cont_livros_cadastrados = 0; // inicialização
+    biblioteca.livros = 0; // inicialização
     
     int op = -1;
     while(op != 0)
@@ -134,17 +243,19 @@ int main()
         {
             /**/
             case 1:
-                cad(biblioteca); 
+                cad(&biblioteca); 
                 break;
             case 2:
-                consultar(biblioteca);
+                consultar(&biblioteca);
                 break;
 
             case 3:
                 // Implementar o empréstimo de livros aqui
+                emprestimo(&biblioteca);
                 break;
 
             case 4:
+                devolucao(&biblioteca);
                 // Implementar a devolução de livros aqui
                 break;
 
