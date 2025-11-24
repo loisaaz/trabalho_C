@@ -29,7 +29,7 @@ struct Biblioteca {
 void cad(struct Biblioteca *b) {
     if (b->livros > 100)
     {
-        printf("O limite de livros cadastrados foi atingido.\n");
+        printf("\n\t\tO limite de livros cadastrados foi atingido.\n");
         return;
     }
 
@@ -101,7 +101,7 @@ void consultar(struct Biblioteca *b){
 
         for(int i = 0; i < b->livros; i++)
         {
-            printf("\t\tLIVRO: %s | AUTOR: %s | ANO de publicação: %d | ID: %d\n", b->v_livros[i].titulo, b->v_livros[i].autor, b->v_livros[i].anopublicado, b->v_livros[i].id);
+            printf("\t\tLIVRO: %s | AUTOR: %s | ANO de publicação: %d | ID: %d | EXEMPLARES: %d\n", b->v_livros[i].titulo, b->v_livros[i].autor, b->v_livros[i].anopublicado, b->v_livros[i].id, b->v_livros[i].quantidade);
         }
 
     }
@@ -115,7 +115,7 @@ void consultar(struct Biblioteca *b){
             
             if(b->v_livros[i].id == idlivro){
                 
-                printf("\t\tLIVRO: %s | AUTOR: %s | ANO de publicação: %d | ID: %d\n", b->v_livros[i].titulo, b->v_livros[i].autor, b->v_livros[i].anopublicado, b->v_livros[i].id);
+                printf("\t\tLIVRO: %s | AUTOR: %s | ANO de publicação: %d | ID: %d | EXEMPLARES: %d\n", b->v_livros[i].titulo, b->v_livros[i].autor, b->v_livros[i].anopublicado, b->v_livros[i].id, b->v_livros[i].quantidade);
                 return;
             }
         }
@@ -147,7 +147,7 @@ void emprestimo(struct Biblioteca *b)
                 printf("\t\tDIGITE O NOME DE QUEM VAI EMPRESTAR: ");
                 scanf(" %[^\n]", p.nome);
                 printf("\t\tDIGITE O CPF: ");
-                scanf(" %ld", p.cpf);
+                scanf(" %ld", &p.cpf);
 
                 for(int j = 0; j < b->v_livros[i].num; j++){
                     if(b->v_livros[i].v_pessoa[j].cpf == p.cpf){
@@ -171,10 +171,8 @@ void emprestimo(struct Biblioteca *b)
                 printf("\n\t\tEmpréstimo realizado com sucesso!\n");
                 return; 
             }
-            else {
-                printf("\nSem exemplares disponíveis.\n");
-                return;
-            }
+            printf("\n\t\tSem exemplares disponíveis.\n");   
+            return;  
         }
     }
     // Se o loop terminar e não tiver entrado, significa que não achou o ID
@@ -203,7 +201,7 @@ void devolucao(struct Biblioteca *b){
                 if(b->v_livros[i].v_pessoa[j].cpf == cpf){
 
                     for(int k = j; k < b->v_livros[i].num - 1; k++){
-                        b->v_livros[i].v_pessoa[k] =b->v_livros[i].v_pessoa[k + 1];
+                        b->v_livros[i].v_pessoa[k] = b->v_livros[i].v_pessoa[k + 1];
                     }
                     // aumenta a qntd disponível dos exemplares do livro
                     b->v_livros[i].quantidade++;
@@ -220,11 +218,42 @@ void devolucao(struct Biblioteca *b){
     }
     printf("\n\t\tERRO: ID não localizado.\n");
 }
+
 //Funçao para remoção 
+void remocao(struct Biblioteca *b){
+    int idlivro;
+
+    printf("\t\tDIGITE O ID DO LIVRO QUE SERÁ REMOVIDO: ");
+    scanf("%d", &idlivro);
+
+    for(int j = 0; j < b->livros; j++)
+    {
+        if(b->v_livros[j].id == idlivro){
+
+            if (b->v_livros[j].num == 0){
+                
+                for (int i = j; i < b->livros - 1; i++){
+
+                    b->v_livros[i] = b->v_livros[i + 1]; 
+                }
+
+                b->livros--;
+                printf("\n\t\tLivro removido com sucesso!\n");
+                return;
+            }
+            printf("\n\t\tERRO: Não é possível remover um livro que está emprestado.\n");
+            return;
+        }
+    }
+    printf("\n\t\tERRO: ID não localizado.\n");
+}
+
 int main()
 {
-    struct Biblioteca biblioteca; // declaração da struct
-    biblioteca.livros = 0; // inicialização
+    struct Biblioteca biblioteca; 
+    // declaração da struct
+    biblioteca.livros = 0; 
+    // inicialização na contagem de livros na biblioteca
     
     int op = -1;
     while(op != 0)
@@ -241,7 +270,6 @@ int main()
         
         switch(op)
         {
-            /**/
             case 1:
                 cad(&biblioteca); 
                 break;
@@ -250,17 +278,15 @@ int main()
                 break;
 
             case 3:
-                // Implementar o empréstimo de livros aqui
                 emprestimo(&biblioteca);
                 break;
 
             case 4:
                 devolucao(&biblioteca);
-                // Implementar a devolução de livros aqui
                 break;
 
             case 5:
-                // Implementar a remoção de livros aqui
+                remocao(&biblioteca);
                 break;
 
             case 6:
@@ -271,7 +297,5 @@ int main()
                 printf("\tOpção inválida! Tente novamente.\n");
         }
     }
-    
-
     return 0;
 }
