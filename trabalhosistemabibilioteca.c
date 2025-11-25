@@ -1,3 +1,5 @@
+// Heloisa Lacerda Marinho RA: 25893868
+
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -14,12 +16,12 @@ struct Livro {
     char autor[100];
     int anopublicado;
     int id;
-    int quantidade; // max 10;
-    struct Pessoa v_pessoa[10]; // vetor para pessoas que emprestaram - max 10
+    int quantidade; //quantidade dos exemplares
+    struct Pessoa v_pessoa[10]; // vetor para pessoas que emprestaram
     int num; // contador de pessoas que realizaram empréstimos
 };
 
-// Estrutura que contém todos os dados da biblioteca
+// Estrutura que contém os dados da biblioteca
 struct Biblioteca {
     struct Livro v_livros[100]; // vetor de uma estrutura do tipo livro
     int livros; // contador para quantidade de livros cadastrados
@@ -27,13 +29,15 @@ struct Biblioteca {
 
 // Função para cadastrar livro
 void cad(struct Biblioteca *b) {
+
+    // verificar a capacidade da biblioteca
     if (b->livros > 100)
     {
         printf("\n\t\tO limite de livros cadastrados foi atingido.\n");
         return;
     }
 
-    struct Livro livro; // criando um tipo para cadastrar um livro
+    struct Livro livro; 
 
     // Inserir dados do livro
     printf("\n\t\tTítulo: ");
@@ -53,16 +57,13 @@ void cad(struct Biblioteca *b) {
     {
         if (b->v_livros[i].id == livro.id)
         {
-            printf("\t\tERRO! ID já existente para outro livro!\n");
-                
-            printf("\n\t\tInsira um ID não cadastrado: ");
-            scanf("%d", &livro.id);
-            i = -1;
+            printf("\n\t\tERRO! ID já existente.\n");
+            return;
         }
     }
     
     printf("\n\t\tQuantidade de exemplares: ");
-    scanf("%d", &livro.quantidade); // maximo = 10
+    scanf("%d", &livro.quantidade); 
     
     if (livro.quantidade > 10 || livro.quantidade < 0)
     {
@@ -73,10 +74,10 @@ void cad(struct Biblioteca *b) {
         }   
     }
 
-    // Inicializando o contador de empréstimos
+    // inicializando o contador de empréstimos
     livro.num = 0;
 
-    // Adicionando o livro à biblioteca
+    // adicionando o livro à biblioteca
     b->v_livros[b->livros] = livro;
     b->livros++;
 
@@ -88,7 +89,7 @@ void consultar(struct Biblioteca *b){
     int escolha;
     struct Livro livro;
     
-    printf("\n\t\t1. VIZUALIZAR TODOS OS LIVROS CADASTRADOS\n\t\t2. BUSCAR LIVRO PELO ID\n\t\tOpção: ");
+    printf("\n\t\t1. Vizualizar todos os livros cadastrados\n\t\t2. Buscar livro pelo ID\n\t\tOpção: ");
     scanf("%d", &escolha);
 
     if (escolha == 1){
@@ -97,25 +98,21 @@ void consultar(struct Biblioteca *b){
             return;
         }
 
-        printf("\n\t\t--- LISTA DE LIVROS ---\n");
-
+        printf("\n\t\t----- LISTA DE LIVROS -----\n");
         for(int i = 0; i < b->livros; i++)
         {
-            printf("\t\tLIVRO: %s | AUTOR: %s | ANO de publicação: %d | ID: %d | EXEMPLARES: %d\n", b->v_livros[i].titulo, b->v_livros[i].autor, b->v_livros[i].anopublicado, b->v_livros[i].id, b->v_livros[i].quantidade);
+            printf("\t\tLIVRO: %s | AUTOR: %s | ANO de publicação: %d | ID: %d | EXEMPLARES DISPONÍVEIS: %d\n", b->v_livros[i].titulo, b->v_livros[i].autor, b->v_livros[i].anopublicado, b->v_livros[i].id, b->v_livros[i].quantidade);
         }
-
     }
     else if (escolha == 2){
         int idlivro;
-
-        printf("\t\tDIGITE O ID: ");
+        printf("\n\t\tDIGITE O ID: ");
         scanf("%d", &idlivro);
         
-        for (int i = 0; i < b->livros; i++) {
-            
+        for (int i = 0; i < b->livros; i++) {     
             if(b->v_livros[i].id == idlivro){
                 
-                printf("\t\tLIVRO: %s | AUTOR: %s | ANO de publicação: %d | ID: %d | EXEMPLARES: %d\n", b->v_livros[i].titulo, b->v_livros[i].autor, b->v_livros[i].anopublicado, b->v_livros[i].id, b->v_livros[i].quantidade);
+                printf("\t\tLIVRO: %s | AUTOR: %s | ANO de publicação: %d | ID: %d | EXEMPLARES DISPONÍVEIS: %d\n", b->v_livros[i].titulo, b->v_livros[i].autor, b->v_livros[i].anopublicado, b->v_livros[i].id, b->v_livros[i].quantidade);
                 return;
             }
         }
@@ -141,7 +138,7 @@ void emprestimo(struct Biblioteca *b)
         // Verifica se encontrou o livro pelo ID
         if (b->v_livros[i].id == idlivro)
         {
-            // 1. Verifica disponibilidade do exemplares
+            // verifica disponibilidade do exemplares
             if(b->v_livros[i].quantidade > 0)
             {
                 printf("\t\tDIGITE O NOME DE QUEM VAI EMPRESTAR: ");
@@ -149,25 +146,26 @@ void emprestimo(struct Biblioteca *b)
                 printf("\t\tDIGITE O CPF: ");
                 scanf(" %ld", &p.cpf);
 
+                // verifica se a pessoa já possui um exemplar desse mesmo título emprestado.
                 for(int j = 0; j < b->v_livros[i].num; j++){
                     if(b->v_livros[i].v_pessoa[j].cpf == p.cpf){
                         printf("\nERRO: Esta pessoa ja possui um exemplar deste livro emprestado!\n");
                         return;
                     }
                 }
-                // 2. Registra o empréstimo
+
+                // registrar o empréstimo
                 int indice = b->v_livros[i].num;
                 
-                // Copia os dados da pessoa para dentro do vetor do livro
+                // copia os dados da pessoa para dentro do vetor do livro
                 b->v_livros[i].v_pessoa[indice] = p;
                 
-                // Atualiza contadores
+                // atualiza a contagem
                 b->v_livros[i].num++; 
 
-                // Diminui a qntd disponível dos exemplares do livro
+                // diminui a qntd disponível dos exemplares do livro
                 b->v_livros[i].quantidade--;   
 
-                // Encerra a função pois já resolveu
                 printf("\n\t\tEmpréstimo realizado com sucesso!\n");
                 return; 
             }
@@ -175,7 +173,6 @@ void emprestimo(struct Biblioteca *b)
             return;  
         }
     }
-    // Se o loop terminar e não tiver entrado, significa que não achou o ID
     printf("\n\t\tID não localizado.\n");
 }
 
@@ -187,26 +184,31 @@ void devolucao(struct Biblioteca *b){
     printf("\t\tDIGITE O ID DO LIVRO QUE SERÁ DEVOLVIDO: ");
     scanf("%d", &idlivro);
 
-    // Loop para procurar o livro no vetor de livros
+    // loop para procurar o livro no vetor de livros
     for (int i = 0; i < b->livros; i++)
     {
-        // Verifica se encontrou o livro pelo ID
+        // verifica se encontrou o livro pelo ID
         if (b->v_livros[i].id == idlivro){
 
             printf("\t\tDIGITE O CPF DE QUEM IRÁ DEVOLVER: ");
             scanf("%ld", &cpf);
 
+            // procura a pessoa na lista de quem pegou o livro emprestado
             for (int j = 0; j < b->v_livros[i].num; j++){
 
+                // verifica se encontrou pelo cpf
                 if(b->v_livros[i].v_pessoa[j].cpf == cpf){
 
+                    // reorganiza o vetor para preencher a posição removida
                     for(int k = j; k < b->v_livros[i].num - 1; k++){
+                        // remove o registro atual deslocando todos os elementos subsequentes uma posição para a esquerda
                         b->v_livros[i].v_pessoa[k] = b->v_livros[i].v_pessoa[k + 1];
                     }
+
                     // aumenta a qntd disponível dos exemplares do livro
                     b->v_livros[i].quantidade++;
 
-                    // Atualiza o numero de pessoas que fizeram emprestimo
+                    // remove e atualiza o numero de pessoas que fizeram emprestimo
                     b->v_livros[i].num--;
                     printf("\n\t\tDevolução realizada!");
                     return;
@@ -226,17 +228,21 @@ void remocao(struct Biblioteca *b){
     printf("\t\tDIGITE O ID DO LIVRO QUE SERÁ REMOVIDO: ");
     scanf("%d", &idlivro);
 
+    // procura pelo livro 
     for(int j = 0; j < b->livros; j++)
     {
         if(b->v_livros[j].id == idlivro){
 
+            // verifica se algum exemplar desse livro esta emprestado
             if (b->v_livros[j].num == 0){
                 
+                // reorganiza o vetor para preencher a posição removida
                 for (int i = j; i < b->livros - 1; i++){
-
+                    // desloca e reorganiza os livros subsequentes uma posição para a esquerda
                     b->v_livros[i] = b->v_livros[i + 1]; 
                 }
 
+                // atualiza o contador total de livros da biblioteca
                 b->livros--;
                 printf("\n\t\tLivro removido com sucesso!\n");
                 return;
@@ -291,6 +297,7 @@ int main()
 
             case 6:
                 printf("\tEncerrando o programa...\n");
+                op = 0;
                 break;
 
             default:
